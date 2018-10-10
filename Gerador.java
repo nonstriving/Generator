@@ -39,7 +39,7 @@ public class Gerador extends LABaseVisitor<String>{
 
 	@Override
 	public String visitDeclaracoes(LAParser.DeclaracoesContext ctx){
-		if(ctx.children != NULL){
+		if(ctx.children!=NULL){
 			String declaracoes = "";
 			declaracoes = declaracoes + visitDecl_local_global(ctx.decl_local_global());
 			declaracoes = declaracoes + visitDeclaracoes(ctx.declaracoes());
@@ -50,5 +50,12 @@ public class Gerador extends LABaseVisitor<String>{
 
 	@Override
 	public String visitDecl_local_global(LAParser.Decl_local_globalCtx ctx){
-		
+		if(ctx.declaracao_local()!=NULL)
+			return visitDeclaracao_local(ctx.declaracao_local());
+		else if(ctx.declaracao_global()!=NULL)
+			return visitDeclaracao_global(ctx.declaracao_global());
+		return "";
 	}
+
+	@Override
+	public String visitDeclaracao_local()
