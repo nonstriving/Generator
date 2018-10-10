@@ -62,7 +62,7 @@ public class Gerador extends LABaseVisitor<String>{
 	public String visitDeclaracao_local(LAParser.Declaracao_localContext ctx){
 		String declaracao_local="";
 		if(ctx.getText().startsWith("declare")){
-			declaracao_local=declaracao_locao+visitVariavel(ctx.variavel());
+			declaracao_local=declaracao_local+visitVariavel(ctx.variavel());
 			return declaracao_local;
 		}
 		else if(ctx.getText().startsWith("constante")){
@@ -220,7 +220,63 @@ public class Gerador extends LABaseVisitor<String>{
 	}
 
 	@Override
-	public String visitValor_constante()
+	public String visitValor_constante(LAParser.Valor_constanteContext ctx)
+		return ctx.getText();
+
+	@Override
+	public String visitRegistro(LAParser.RegistroContext ctx){
+		if(ctx.children!=NULL){
+			String registro="";
+			registro=registro+"struct{\n";
+			registro=registro+visitVariavel(ctx.variavel());
+			registro=registro+visitMais_variaveis(ctx.mais_variaveis());
+			registro=registro+"\t}";
+			return registro;
+		}
+		return "";
+	}
+
+	@Override 
+	public String visitDeclaracao_global(LAParser.Declaracao_globalContext ctx){
+		String declaracao_global="";
+		//Procedimento nao tem valor de retorno
+		if(ctx.getText().startsWith("procedimento")){
+			pilhaTabela.empilhar(new TabelaDeSimbolos("procedimento "+ctx.IDENT().getText()));
+			declaracao_global=declaracao_global+"void "+ctx.IDENT().getText()+"(";
+			declaracao_global=declaracao_global+visitParametros_opcional(ctx.parametros_opcional())+"){\n";
+			declaracao_global=declaracao_global+visitDeclaracoes_locais(ctx.declaracoes_locais());
+			declaracao_global=declaracao_global+visitComandos(ctx.comandos());
+			declaracao_global=declaracao_global+"}";
+			pilhaTabela.desempilhar();
+			return declaracao_global;
+		}
+		//Funcao tem valor de retorno
+		else
+		{
+			pilhaTabela.topo().adicionarSimbolo(ctx.IDENT().getText(),ctx.tipo_estendido().getText());
+			pilhaTabela.empilhar(new TabelaDeSimbolos("funcao "+ctx.IDENT().getText()));
+			declaracao_global=declaracao_global+"\n"+visitTipo_estendido(ctx.tipo_estendido());
+			declaracao_global=declaracao_global+" "+ctx.IDENT().getText()+"(";
+			declaracao_global=declaracao_global+visitParametros_opcional(ctx.parametros_opcional())+"){\n";
+			declaracao_global=declaracao_global+visitDeclaracoes_locais(ctx.declaracoes_locais());
+			declaracao_global=declaracao_global+visitComandos(ctx.comandos());
+			declaracao_global=declaracao_global+"}";
+			pilhaTabela.desempilhar();
+			return declaracao_global;
+		}
+	}
+
+	@Override
+	public String visitParametros_opcional(LAParser.Parametros_opcionalContext ctx){
+		if(ctx.children!=NULL)
+			return visitParametro(ctx.parametro());
+		return "";
+	}
+
+	@Override
+	public String visitParametro(LAParser.ParametroContext ctx){
+		
+	}
 
 
 }
