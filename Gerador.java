@@ -31,7 +31,24 @@ public class Gerador extends LABaseVisitor<String>{
 			sp.println("int main(){");
 			sp.prinln(visitCorpo(ctx.corpo()));
 
-			sp.println("\treturn 0;\n});
+			sp.println("\treturn 0;\n}");
 			pilhaTabela.desempilhar();
 		}
+		return "";
+	}
+
+	@Override
+	public String visitDeclaracoes(LAParser.DeclaracoesContext ctx){
+		if(ctx.children != NULL){
+			String declaracoes = "";
+			declaracoes = declaracoes + visitDecl_local_global(ctx.decl_local_global());
+			declaracoes = declaracoes + visitDeclaracoes(ctx.declaracoes());
+			return declaracoes;
+		}
+		return "";
+	}
+
+	@Override
+	public String visitDecl_local_global(LAParser.Decl_local_globalCtx ctx){
+		
 	}
