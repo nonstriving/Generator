@@ -138,4 +138,89 @@ public class Gerador extends LABaseVisitor<String>{
 		return "";
 	}
 
-	
+	@Override
+	public String visitOutros_ident(LAParser.Outros_identContext ctx){
+		if(ctx.children!=NULL)
+			return "."+visitIdentificador(ctx.identificador());
+		else
+			return "";
+	}
+
+	@Override
+	public String visitDimensao(LAParser.DimensaoContext ctx){
+		if(ctx.children!=NULL){
+			String dimensao="";
+			dimensao=dimensao+"["+visitExp_aritmetica(ctx.exp_aritmetica())+"]";
+			dimensao=dimensao+visitDimensao(ctx.dimensao());
+			return dimensao;
+		}
+		return "";
+	}
+
+	@Override 
+	public String visitTipo(LAParser.TipoContext ctx){
+		if(ctx.registro()!=NULL)
+			return visitRegistro(ctx.registro());
+		else
+			return visitTipo_estendido(ctx.tipo_estendido());
+	}
+
+	@Override
+	public String visitMais_ident(LAParser.Mais_identContext ctx){
+		if(ctx.children!=NULL){
+			String mais_ident="";
+			mais_ident=mais_ident+","+visitIdentificador(ctx.identificador());
+			mais_ident=mais_ident+visitMais_ident(ctx.mais_ident());
+			return mais_ident;
+		}
+		return "";
+	}
+
+	@Override
+	public String visitMais_variaveis(LAParser.Mais_variaveisContext ctx){
+		if(ctx.children!=NULL){
+			String mais_variaveis="";
+			mais_variaveis=mais_variaveis+visitVariavel(ctx.variavel());
+			mais_variaveis=mais_variaveis+visitMais_variaveis(ctx.mais_variaveis());
+			return mais_variaveis;
+		}
+		return "";
+	}
+
+	@Override 
+	public String visitTipo_basico(LAParser.Tipo_basicoContext ctx){
+		if(ctx.getText().equals("logico"))
+			return "boolean";
+		else if(ctx.getText().equals("inteiro"))
+			return "int";
+		else if(ctx.getText().equals("real"))
+			return "float";
+		else if(ctx.getText().equals("literal"))
+			return "char";
+		return "";
+	}
+
+	@Override
+	public String visitTipo_basico_ident(LAParser.Tipo_basico_identContext ctx){
+		if(ctx.tipo_basic()!=NULL)
+			return visitTipo_basic(ctx.tipo_basico());
+		else
+			return ctx.IDENT().toString();
+	}
+
+	@Override
+	public String visitTipo_estendido(LAParser.Tipo_estendidoContext ctx){	
+		if(ctx.children!=NULL){
+			String tipo_estendido="";
+			tipo_estendido=tipo_estendido+visitTipo_basico_ident(ctx.tipo_basico_ident());
+			tipo_estendido=tipo_estendido+visitPonteiros_opcionais(ctx.ponteiros_opcionais());
+			return tipo_estendido;
+		}
+		return  "";
+	}
+
+	@Override
+	public String visitValor_constante()
+
+
+}
