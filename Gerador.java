@@ -76,8 +76,64 @@ public class Gerador extends LABaseVisitor<String>{
 			pilhaTabela.topo().adicionarSimbolo(ctx.IDENT().getText(), "tipo");
 			declaracao_local=declaracao_local+"typedef ";
 			declaracao_local=declaracao_local+visitTipo(ctx.tipo());
+			//O que eh isso?
 			declaracao_local=declaracao_local+"treg;\n";
 			return declaracao_local;
+		}
+		return "";
+	}
+
+	@Override
+	public String visitVariavel(LAParser.VariavelContext ctx){
+		if(ctx.children!=NULL){
+			String variavel="";
+			variavel=variavel+visitTipo(ctx.tipo())+" ";
+			tipoMaisVar=ctx.tipo().getText();
+			pilhaTabela.topo().adicionarSimbolo(ctx.IDENT().toString(),ctx.tipo().getText());
+			variavel=variavel+ctx.IDENT().toString();
+			variavel=variavel+visitDimensao(ctx.dimensao());
+			if(tipoMaisVar.equals("literal")){
+				variavel=variavel+"[80]";
+			}
+			variavel=variavel+visitMais_var(ctx.mais_var())+";\n";
+			return variavel;
+		}
+		return "";
+	}
+
+	@Override
+	public String visitMais_var(LAParser.Mais_varContext ctx){
+		if(ctx.getText().startsWith(",")){
+			String mais_var="";
+			mais_var=mais_var+","+ctx.IDENT().toString();
+			pilhaTabela.topo().adicionarSimbolo(ctx.IDENT().toString(), tipoMaisVar);
+			mais_var=mais_var+visitDimensao(ctx.dimensao());
+			mais_var=mais_var+visitMais_var(ctx.mais_var());
+				return mais_var;
+		}
+		return "";
+	}
+
+	@Override
+	public String visitIdentificador(LAParser.IdentificadorContext ctx){
+		if(ctx.children!=NULL){
+			String identificador="";
+			identificador=identificador+visitPonteiros_opcionais(ctx.ponteiros_opcionais());
+			identificador=identificador+ctx.IDENT().toString();
+			identificador=identificador+visitDimensao(ctx.dimensao());
+			identificador=identificador+visitOutros_ident(ctx.outros_ident());
+			return identificador;
+		}
+		return "";
+	}
+
+	@Override
+	public String visitPonteiros_opcionais(LAParser.Ponteiros_opcionaisContext ctx) {
+		if(ctx.children!=NULL){
+			String ponteiros_opcionais="";
+			ponteiros_opcionais=ponteiros_opcionais+visitPonteiros_opcionais(ctx.ponteiros_opcionais());
+			ponteiros_opcionais=ponteiros_opcionais+"*";
+			return ponteiros_opcionais;
 		}
 		return "";
 	}
